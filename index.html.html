@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Compressly - Free online tools. Compress images, generate passwords, QR codes & more.">
+    <title>Compressly • Free Online Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .font-display { font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
+        .tool-card { transition: all 0.2s cubic-bezier(0.4,0,0.2,1); }
+        .tool-card:hover { transform: translateY(-3px); }
+        .dropzone { transition: all 0.3s ease; }
+        .dropzone.dragover { background-color: rgba(99,102,241,0.1); border-color: #6366f1; }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+
+    <!-- Navbar -->
+    <nav class="border-b border-white/10 bg-zinc-950/90 sticky top-0 z-50">
+        <div class="max-w-screen-2xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-x-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-2xl flex items-center justify-center">
+                    <span class="text-white font-bold">C</span>
+                </div>
+                <span class="font-display text-2xl font-semibold tracking-tighter">Compressly</span>
+            </div>
+            <div class="flex items-center gap-x-7 text-sm">
+                <a href="#compressor" class="hover:text-white text-white/80">Compressor</a>
+                <a href="#tools" class="hover:text-white text-white/80">Tools</a>
+                <a href="#blog" class="hover:text-white text-white/80">Blog</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="max-w-screen-2xl mx-auto px-6 pt-12 pb-8 text-center">
+        <div class="max-w-2xl mx-auto">
+            <div class="inline-flex px-4 py-1 rounded-3xl bg-white/5 text-xs tracking-widest mb-4">100% FREE • PRIVATE • NO SIGNUP</div>
+            <h1 class="text-6xl font-display tracking-tighter font-semibold leading-none mb-4">Free tools.<br>That actually work.</h1>
+            <p class="text-xl text-zinc-400">Compress images, create passwords, generate QR codes &amp; more.</p>
+        </div>
+    </div>
+
+    <!-- Ad Top (Commented) -->
+    <!-- 
+    <div class="max-w-screen-2xl mx-auto px-6 pb-8">
+        <div class="max-w-[1100px] mx-auto">
+            <div style="background:#27272a; min-height:90px; display:flex; align-items:center; justify-content:center; border-radius:12px; color:#71717a; font-size:12px;">
+                AdSense Top Banner
+            </div>
+        </div>
+    </div>
+    -->
+
+    <!-- Image Compressor -->
+    <div id="compressor" class="max-w-screen-2xl mx-auto px-6 pb-10">
+        <div class="max-w-[1080px] mx-auto">
+            <div class="flex justify-between items-end mb-4 px-1">
+                <div>
+                    <span class="text-indigo-400 text-xs tracking-[1.5px] font-semibold">MOST POPULAR</span>
+                    <h2 class="text-3xl font-semibold tracking-tight">Image Compressor</h2>
+                </div>
+            </div>
+
+            <div class="bg-zinc-900 border border-white/10 rounded-3xl p-6">
+                <div id="upload-area" onclick="document.getElementById('file-input').click()" 
+                     class="dropzone border-2 border-dashed border-white/20 hover:border-indigo-500 rounded-3xl p-9 text-center cursor-pointer">
+                    <input type="file" id="file-input" multiple accept="image/*" class="hidden">
+                    <div class="mx-auto w-11 h-11 bg-white/5 rounded-2xl flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                    </div>
+                    <div class="font-semibold">Drop images here or click to upload</div>
+                    <p class="text-xs text-white/50 mt-1">JPEG • PNG • WebP • Works in browser</p>
+                </div>
+
+                <div id="files-section" class="hidden mt-5">
+                    <div class="flex justify-between mb-3 px-1 items-center">
+                        <span id="file-count" class="text-sm font-medium">0 files</span>
+                        <div class="flex gap-x-2">
+                            <button onclick="applyGlobalSettings()" class="text-xs px-4 h-8 border border-white/20 rounded-2xl">Apply to All</button>
+                            <button onclick="compressAllImages()" class="text-xs px-5 h-8 bg-indigo-600 rounded-2xl font-semibold">Compress All</button>
+                            <button onclick="downloadAllAsZip()" id="download-all-btn" class="hidden text-xs px-5 h-8 bg-emerald-600 rounded-2xl font-semibold">Download ZIP</button>
+                        </div>
+                    </div>
+                    <div id="files-container" class="space-y-3 max-h-[360px] overflow-auto"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Why Compressly -->
+    <div class="max-w-screen-2xl mx-auto px-6 py-10">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-semibold tracking-tight">Why thousands use Compressly daily</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-zinc-900 border border-white/10 rounded-3xl p-6">
+                    <div class="text-indigo-400 mb-3">🔒</div>
+                    <h4 class="font-semibold mb-2">100% Private</h4>
+                    <p class="text-sm text-white/70">All tools work directly in your browser. Your files never leave your device.</p>
+                </div>
+                <div class="bg-zinc-900 border border-white/10 rounded-3xl p-6">
+                    <div class="text-indigo-400 mb-3">⚡</div>
+                    <h4 class="font-semibold mb-2">Lightning Fast</h4>
+                    <p class="text-sm text-white/70">No waiting for uploads. Get results instantly.</p>
+                </div>
+                <div class="bg-zinc-900 border border-white/10 rounded-3xl p-6">
+                    <div class="text-indigo-400 mb-3">🆓</div>
+                    <h4 class="font-semibold mb-2">Completely Free</h4>
+                    <p class="text-sm text-white/70">No signup, no limits, no watermarks.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Tools -->
+    <div id="tools" class="bg-zinc-900/60 border-t border-white/10 py-10">
+        <div class="max-w-screen-2xl mx-auto px-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex items-end justify-between mb-6 px-1">
+                    <div>
+                        <span class="text-xs text-indigo-400 tracking-widest font-semibold">EXPLORE</span>
+                        <h2 class="text-3xl font-semibold tracking-tighter">20+ Free Tools</h2>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4" id="tools-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blog Section -->
+    <div id="blog" class="max-w-screen-2xl mx-auto px-6 py-14 border-t border-white/10">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-end justify-between mb-8">
+                <div>
+                    <span class="text-xs text-indigo-400 tracking-widest font-semibold">LEARN</span>
+                    <h2 class="text-3xl font-semibold tracking-tighter">Helpful Guides</h2>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-zinc-900 border border-white/10 rounded-3xl p-6">
+                    <div class="text-xs text-white/50 mb-2">IMAGE OPTIMIZATION</div>
+                    <h4 class="font-semibold mb-3">How to Compress Images Without Losing Quality</h4>
+                    <p class="text-sm text-white/70">Learn the best techniques to reduce image size while keeping quality.</p>
+                </div>
+                <div class="bg-zinc-900 border border-white/10 rounded-3xl p-6">
+                    <div class="text-xs text-white/50 mb-2">WEB PERFORMANCE</div>
+                    <h4 class="font-semibold mb-3">Why WebP is Better Than JPEG in 2026</h4>
+                    <p class="text-sm text-white/70">Discover why converting to WebP can improve your website speed.</p>
+                </div>
+                <div class="bg-zinc-900 border border-white/10 rounded-3xl p-6">
+                    <div class="text-xs text-white/50 mb-2">SECURITY</div>
+                    <h4 class="font-semibold mb-3">How to Create Strong Passwords</h4>
+                    <p class="text-sm text-white/70">Practical tips to create secure yet memorable passwords.</p>
+                </div>
+                <div class="bg-zinc-900 border border-white/10 rounded-3xl p-6">
+                    <div class="text-xs text-white/50 mb-2">PRODUCTIVITY</div>
+                    <h4 class="font-semibold mb-3">10 Free Tools Every Freelancer Should Know</h4>
+                    <p class="text-sm text-white/70">Powerful free tools that can save you hours every week.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-white/10 py-8 text-xs text-white/50">
+        <div class="max-w-screen-2xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-y-4">
+                <div>© 2026 Compressly. All rights reserved.</div>
+                <div class="flex gap-x-6">
+                    <a href="#privacy" class="hover:text-white">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Tool Modal -->
+    <div id="tool-modal" onclick="if (event.target.id === 'tool-modal') closeToolModal()" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
+        <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-white/10 rounded-3xl w-full max-w-2xl max-h-[82vh] overflow-auto">
+            <div class="p-5 border-b border-white/10 flex justify-between items-center">
+                <div id="modal-title" class="font-semibold text-xl"></div>
+                <button onclick="closeToolModal()" class="text-3xl text-white/60 hover:text-white leading-none">×</button>
+            </div>
+            <div id="modal-content" class="p-6"></div>
+        </div>
+    </div>
+
+    <script>
+        // IMAGE COMPRESSOR + TOOLS CODE (same as before)
+        let filesData = [];
+
+        function initCompressor() {
+            const zone = document.getElementById('upload-area');
+            zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+            zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+            zone.addEventListener('drop', e => {
+                e.preventDefault(); zone.classList.remove('dragover');
+                const imgs = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+                if (imgs.length) handleFiles(imgs);
+            });
+            document.getElementById('file-input').addEventListener('change', e => {
+                if (e.target.files.length) handleFiles(Array.from(e.target.files));
+            });
+        }
+
+        function handleFiles(newFiles) {
+            document.getElementById('upload-area').style.display = 'none';
+            document.getElementById('files-section').classList.remove('hidden');
+
+            newFiles.forEach(file => {
+                if (file.size > 50*1024*1024) return;
+                const id = Date.now() + Math.random().toString(36).slice(2);
+                filesData.push({
+                    id, file, name: file.name, originalSize: file.size,
+                    quality: 82, maxWidth: 1920, maxHeight: 1920, outputFormat: 'webp',
+                    status: 'pending', compressedBlob: null, compressedUrl: null
+                });
+                renderFileRow(filesData.at(-1));
+            });
+            document.getElementById('file-count').textContent = filesData.length + ' files';
+        }
+
+        function renderFileRow(f) {
+            const container = document.getElementById('files-container');
+            const el = document.createElement('div');
+            el.id = `row-${f.id}`;
+            el.className = `bg-zinc-950 border border-white/10 rounded-3xl p-4 flex flex-col md:flex-row gap-4`;
+
+            el.innerHTML = `
+                <div class="flex items-center gap-4 flex-1">
+                    <div class="w-14 h-14 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0">
+                        <img src="${URL.createObjectURL(f.file)}" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <div class="font-medium text-sm">${f.name}</div>
+                        <div class="text-xs text-white/50">${formatSize(f.originalSize)}</div>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <div class="grid grid-cols-3 gap-x-3 text-xs">
+                        <div>
+                            <div class="text-white/50 mb-1">Quality</div>
+                            <input type="range" min="50" max="100" value="${f.quality}" class="w-full accent-indigo-500" oninput="updateFile('${f.id}', 'quality', this.value)">
+                            <div class="text-right text-[10px]" id="q-${f.id}">${f.quality}</div>
+                        </div>
+                        <div>
+                            <div class="text-white/50 mb-1">Format</div>
+                            <select onchange="updateFile('${f.id}', 'outputFormat', this.value)" class="bg-zinc-900 border border-white/20 w-full text-xs rounded-2xl px-2 py-1">
+                                <option value="webp">WebP</option><option value="jpeg">JPEG</option><option value="original">Original</option>
+                            </select>
+                        </div>
+                        <div>
+                            <div class="text-white/50 mb-1">Max Size</div>
+                            <div class="flex gap-1">
+                                <input type="number" value="${f.maxWidth}" oninput="updateFile('${f.id}', 'maxWidth', this.value)" class="w-full bg-zinc-950 border border-white/20 rounded-2xl px-2 py-1 text-xs">
+                                <input type="number" value="${f.maxHeight}" oninput="updateFile('${f.id}', 'maxHeight', this.value)" class="w-full bg-zinc-950 border border-white/20 rounded-2xl px-2 py-1 text-xs">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-x-2 items-center">
+                    <button onclick="compressSingle('${f.id}')" class="px-5 h-9 text-xs bg-white text-zinc-950 rounded-3xl font-semibold">Compress</button>
+                    <button onclick="removeFile('${f.id}')" class="text-white/40 hover:text-red-400 px-2 text-xl">×</button>
+                </div>
+            `;
+            container.appendChild(el);
+        }
+
+        function updateFile(id, key, val) {
+            const f = filesData.find(x => x.id === id);
+            if (!f) return;
+            if (key === 'quality') { f.quality = parseInt(val); document.getElementById('q-' + id).textContent = val; }
+            else f[key] = val;
+        }
+
+        async function compressSingle(id) {
+            const f = filesData.find(x => x.id === id);
+            if (!f) return;
+            const row = document.getElementById('row-' + id);
+            row.style.opacity = '0.6';
+
+            try {
+                const opts = {
+                    maxSizeMB: 8, maxWidthOrHeight: Math.max(f.maxWidth, f.maxHeight),
+                    useWebWorker: true, initialQuality: f.quality / 100,
+                    fileType: f.outputFormat === 'webp' ? 'image/webp' : f.outputFormat === 'jpeg' ? 'image/jpeg' : undefined
+                };
+                const blob = await imageCompression(f.file, opts);
+                f.compressedBlob = blob;
+                f.compressedUrl = URL.createObjectURL(blob);
+                f.status = 'done';
+                row.remove();
+                renderFileRow(f);
+                document.getElementById('download-all-btn').classList.remove('hidden');
+            } catch(e) { alert("Compression failed"); row.style.opacity = '1'; }
+        }
+
+        async function compressAllImages() {
+            for (let f of filesData.filter(x => x.status !== 'done')) await compressSingle(f.id);
+        }
+
+        function applyGlobalSettings() {
+            filesData.forEach(f => { if (f.status !== 'done') { f.quality = 82; f.outputFormat = 'webp'; } });
+            document.getElementById('files-container').innerHTML = '';
+            filesData.forEach(f => renderFileRow(f));
+        }
+
+        function removeFile(id) {
+            filesData = filesData.filter(x => x.id !== id);
+            document.getElementById('row-' + id)?.remove();
+            if (!filesData.length) {
+                document.getElementById('files-section').classList.add('hidden');
+                document.getElementById('upload-area').style.display = 'block';
+            }
+        }
+
+        async function downloadAllAsZip() {
+            const done = filesData.filter(f => f.compressedBlob);
+            if (!done.length) return;
+            const zip = new JSZip();
+            done.forEach(f => {
+                const ext = f.outputFormat === 'webp' ? 'webp' : 'jpg';
+                zip.file(f.name.replace(/\.[^/.]+$/, "") + "-compressed." + ext, f.compressedBlob);
+            });
+            const blob = await zip.generateAsync({type:"blob"});
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob); a.download = "compressed.zip"; a.click();
+        }
+
+        function formatSize(b) {
+            if (!b) return '0 B';
+            const k = 1024, i = Math.floor(Math.log(b)/Math.log(k));
+            return (b / Math.pow(k,i)).toFixed(1) + ' ' + ['B','KB','MB'][i];
+        }
+
+        const tools = [
+            { id: 1, name: "Image Compressor", desc: "Compress JPEG, PNG & WebP", type: "main" },
+            { id: 2, name: "Word Counter", desc: "Count words & characters", type: "modal", modalType: "wordcounter" },
+            { id: 3, name: "Case Converter", desc: "Change text case", type: "modal", modalType: "case" },
+            { id: 4, name: "Lorem Ipsum Generator", desc: "Generate placeholder text", type: "modal", modalType: "lorem" },
+            { id: 5, name: "JSON Formatter", desc: "Format & validate JSON", type: "modal", modalType: "json" },
+            { id: 6, name: "Base64 Encoder", desc: "Encode / Decode Base64", type: "modal", modalType: "base64" },
+            { id: 7, name: "URL Encoder", desc: "Encode & decode URLs", type: "modal", modalType: "url" },
+            { id: 8, name: "Password Generator", desc: "Create strong passwords", type: "modal", modalType: "password" },
+            { id: 9, name: "QR Code Generator", desc: "Generate QR codes", type: "modal", modalType: "qr" },
+            { id: 10, name: "Color Picker", desc: "Pick colors with codes", type: "modal", modalType: "color" },
+            { id: 11, name: "Unit Converter", desc: "Convert length units", type: "modal", modalType: "unit" },
+            { id: 12, name: "Meta Tag Generator", desc: "Generate SEO meta tags", type: "modal", modalType: "metatag" },
+            { id: 13, name: "Duplicate Remover", desc: "Remove duplicate lines", type: "modal", modalType: "duplicate" },
+            { id: 14, name: "Text to Speech", desc: "Convert text to voice", type: "modal", modalType: "tts" },
+        ];
+
+        function renderTools() {
+            const grid = document.getElementById('tools-grid');
+            grid.innerHTML = '';
+
+            tools.forEach(tool => {
+                const card = document.createElement('div');
+                card.className = `tool-card bg-zinc-900 border border-white/10 rounded-3xl p-5 flex flex-col`;
+
+                let btn = '';
+                if (tool.type === 'main') {
+                    btn = `<button onclick="document.getElementById('compressor').scrollIntoView({behavior:'smooth'})" class="mt-auto w-full h-9 bg-white text-zinc-950 rounded-2xl text-sm font-semibold">Launch</button>`;
+                } else {
+                    btn = `<button onclick="openToolModal(${tool.id})" class="mt-auto w-full h-9 bg-white text-zinc-950 rounded-2xl text-sm font-semibold">Launch</button>`;
+                }
+
+                card.innerHTML = `
+                    <div class="font-semibold">${tool.name}</div>
+                    <div class="text-xs text-white/60 mt-1 mb-5">${tool.desc}</div>
+                    ${btn}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openToolModal(id) {
+            const tool = tools.find(t => t.id === id);
+            if (!tool) return;
+
+            const modal = document.getElementById('tool-modal');
+            const title = document.getElementById('modal-title');
+            const content = document.getElementById('modal-content');
+
+            title.textContent = tool.name;
+            content.innerHTML = '';
+
+            if (tool.modalType === 'wordcounter') {
+                content.innerHTML = `
+                    <textarea id="wc-text" class="w-full h-40 bg-zinc-950 border border-white/20 rounded-2xl p-4" placeholder="Paste text..."></textarea>
+                    <div class="flex gap-x-8 mt-4"><div><span id="wc-words" class="font-semibold text-2xl">0</span> words</div><div><span id="wc-chars" class="font-semibold text-2xl">0</span> chars</div></div>`;
+                setTimeout(() => {
+                    const ta = document.getElementById('wc-text');
+                    ta.oninput = () => {
+                        const t = ta.value.trim();
+                        document.getElementById('wc-words').textContent = t ? t.split(/\s+/).length : 0;
+                        document.getElementById('wc-chars').textContent = t.length;
+                    };
+                }, 50);
+            }
+
+            else if (tool.modalType === 'case') {
+                content.innerHTML = `
+                    <textarea id="case-in" class="w-full h-28 bg-zinc-950 border border-white/20 rounded-2xl p-4 mb-3" placeholder="Enter text"></textarea>
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <button onclick="doCase('upper')" class="h-10 bg-white/10 rounded-2xl">UPPERCASE</button>
+                        <button onclick="doCase('lower')" class="h-10 bg-white/10 rounded-2xl">lowercase</button>
+                        <button onclick="doCase('title')" class="h-10 bg-white/10 rounded-2xl">Title Case</button>
+                        <button onclick="doCase('sentence')" class="h-10 bg-white/10 rounded-2xl">Sentence case</button>
+                    </div>
+                    <textarea id="case-out" class="w-full h-28 bg-zinc-950 border border-white/20 rounded-2xl p-4" readonly></textarea>`;
+            }
+
+            else if (tool.modalType === 'lorem') {
+                content.innerHTML = `
+                    <div class="flex gap-x-3 mb-4">
+                        <input id="lorem-c" type="number" value="3" class="w-20 bg-zinc-950 border border-white/20 rounded-2xl px-4 h-11">
+                        <button onclick="genLorem()" class="flex-1 h-11 bg-white text-zinc-950 rounded-2xl font-semibold">Generate</button>
+                    </div>
+                    <textarea id="lorem-out" class="w-full h-44 bg-zinc-950 border border-white/20 rounded-2xl p-4 text-sm" readonly></textarea>`;
+            }
+
+            else if (tool.modalType === 'json') {
+                content.innerHTML = `
+                    <textarea id="json-in" class="w-full h-36 bg-zinc-950 border border-white/20 rounded-2xl p-4 font-mono text-sm" placeholder='{"key":"value"}'></textarea>
+                    <button onclick="formatJSON()" class="mt-3 w-full h-10 bg-white text-zinc-950 rounded-2xl font-semibold">Format JSON</button>
+                    <textarea id="json-out" class="w-full h-36 mt-3 bg-zinc-950 border border-white/20 rounded-2xl p-4 font-mono text-sm" readonly></textarea>`;
+            }
+
+            else if (tool.modalType === 'base64') {
+                content.innerHTML = `
+                    <div class="mb-4">
+                        <div class="text-xs mb-1 text-white/60">Text → Base64</div>
+                        <textarea id="b64-in" class="w-full h-20 bg-zinc-950 border border-white/20 rounded-2xl p-3"></textarea>
+                        <button onclick="encB64()" class="mt-2 w-full h-9 bg-white text-zinc-950 rounded-2xl text-sm font-semibold">Encode</button>
+                    </div>
+                    <div>
+                        <div class="text-xs mb-1 text-white/60">Base64 → Text</div>
+                        <textarea id="b64-out" class="w-full h-20 bg-zinc-950 border border-white/20 rounded-2xl p-3"></textarea>
+                        <button onclick="decB64()" class="mt-2 w-full h-9 border border-white/20 rounded-2xl text-sm">Decode</button>
+                    </div>`;
+            }
+
+            else if (tool.modalType === 'url') {
+                content.innerHTML = `
+                    <input id="url-in" class="w-full bg-zinc-950 border border-white/20 rounded-2xl h-11 px-4 mb-3" placeholder="Enter text or URL">
+                    <div class="flex gap-x-3">
+                        <button onclick="encURL()" class="flex-1 h-10 bg-white text-zinc-950 rounded-2xl font-semibold">Encode</button>
+                        <button onclick="decURL()" class="flex-1 h-10 border border-white/20 rounded-2xl">Decode</button>
+                    </div>
+                    <div id="url-out" class="mt-4 p-4 bg-zinc-950 border border-white/10 rounded-2xl text-sm break-all font-mono min-h-[50px]"></div>`;
+            }
+
+            else if (tool.modalType === 'password') {
+                content.innerHTML = `
+                    <div class="flex gap-x-3 mb-4">
+                        <input id="pw-len" type="number" value="16" class="w-24 bg-zinc-950 border border-white/20 rounded-2xl px-4 h-11">
+                        <button onclick="genPass()" class="flex-1 h-11 bg-white text-zinc-950 rounded-2xl font-semibold">Generate</button>
+                    </div>
+                    <div class="flex gap-x-2">
+                        <input id="pw-out" class="flex-1 bg-zinc-950 border border-white/20 rounded-2xl px-4 h-11 font-mono" readonly>
+                        <button onclick="copyVal('pw-out')" class="px-5 border border-white/20 rounded-2xl">Copy</button>
+                    </div>`;
+            }
+
+            else if (tool.modalType === 'qr') {
+                content.innerHTML = `
+                    <input id="qr-in" class="w-full bg-zinc-950 border border-white/20 rounded-2xl h-11 px-4 mb-3" placeholder="Text or URL">
+                    <button onclick="genQR()" class="w-full h-10 bg-white text-zinc-950 rounded-2xl font-semibold mb-4">Generate QR</button>
+                    <div id="qr-box" class="flex justify-center"></div>`;
+            }
+
+            else if (tool.modalType === 'color') {
+                content.innerHTML = `
+                    <div class="flex justify-center mb-6"><input type="color" id="col-pick" value="#6366f1" class="w-24 h-24"></div>
+                    <div class="grid grid-cols-3 gap-3 text-sm">
+                        <div class="bg-zinc-950 p-3 rounded-2xl border border-white/10"><div class="text-xs text-white/50">HEX</div><div id="hexv" class="font-mono">#6366f1</div></div>
+                        <div class="bg-zinc-950 p-3 rounded-2xl border border-white/10"><div class="text-xs text-white/50">RGB</div><div id="rgbv" class="font-mono">99, 102, 241</div></div>
+                        <div class="bg-zinc-950 p-3 rounded-2xl border border-white/10"><div class="text-xs text-white/50">HSL</div><div id="hslv" class="font-mono">243°, 85%, 67%</div></div>
+                    </div>`;
+                setTimeout(() => {
+                    const p = document.getElementById('col-pick');
+                    p.oninput = () => updateColor(p.value);
+                    updateColor(p.value);
+                }, 80);
+            }
+
+            else if (tool.modalType === 'unit') {
+                content.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <div class="text-xs mb-1">From</div>
+                            <select id="u-from" class="w-full bg-zinc-950 border border-white/20 rounded-2xl h-10 px-3 mb-2">
+                                <option value="m">Meters</option><option value="km">Kilometers</option><option value="cm">Centimeters</option><option value="in">Inches</option><option value="ft">Feet</option>
+                            </select>
+                            <input id="u-val" type="number" value="100" class="w-full bg-zinc-950 border border-white/20 rounded-2xl h-11 px-4">
+                        </div>
+                        <div>
+                            <div class="text-xs mb-1">To</div>
+                            <select id="u-to" class="w-full bg-zinc-950 border border-white/20 rounded-2xl h-10 px-3 mb-2">
+                                <option value="km">Kilometers</option><option value="m">Meters</option><option value="cm">Centimeters</option><option value="in">Inches</option><option value="ft">Feet</option>
+                            </select>
+                            <div id="u-res" class="bg-zinc-950 border border-white/10 h-11 rounded-2xl flex items-center px-4 font-semibold">—</div>
+                        </div>
+                    </div>
+                    <button onclick="convUnit()" class="mt-5 w-full h-10 bg-white text-zinc-950 rounded-2xl font-semibold">Convert</button>`;
+            }
+
+            else if (tool.modalType === 'metatag') {
+                content.innerHTML = `
+                    <div class="space-y-3">
+                        <input id="mt-title" placeholder="Page Title" class="w-full bg-zinc-950 border border-white/20 rounded-2xl h-11 px-4">
+                        <input id="mt-desc" placeholder="Meta Description" class="w-full bg-zinc-950 border border-white/20 rounded-2xl h-11 px-4">
+                        <input id="mt-keywords" placeholder="Keywords (comma separated)" class="w-full bg-zinc-950 border border-white/20 rounded-2xl h-11 px-4">
+                        <button onclick="genMetaTags()" class="w-full h-10 bg-white text-zinc-950 rounded-2xl font-semibold">Generate Meta Tags</button>
+                    </div>
+                    <textarea id="mt-output" class="w-full h-40 mt-4 bg-zinc-950 border border-white/20 rounded-2xl p-4 font-mono text-sm" readonly></textarea>`;
+            }
+
+            else if (tool.modalType === 'duplicate') {
+                content.innerHTML = `
+                    <textarea id="dup-in" class="w-full h-40 bg-zinc-950 border border-white/20 rounded-2xl p-4" placeholder="Paste lines here..."></textarea>
+                    <button onclick="removeDuplicates()" class="mt-3 w-full h-10 bg-white text-zinc-950 rounded-2xl font-semibold">Remove Duplicates</button>
+                    <textarea id="dup-out" class="w-full h-40 mt-3 bg-zinc-950 border border-white/20 rounded-2xl p-4" readonly></textarea>`;
+            }
+
+            else if (tool.modalType === 'tts') {
+                content.innerHTML = `
+                    <textarea id="tts-text" class="w-full h-32 bg-zinc-950 border border-white/20 rounded-2xl p-4" placeholder="Enter text to speak..."></textarea>
+                    <div class="flex gap-x-3 mt-3">
+                        <button onclick="speakText()" class="flex-1 h-10 bg-white text-zinc-950 rounded-2xl font-semibold">Speak</button>
+                        <button onclick="stopSpeak()" class="flex-1 h-10 border border-white/20 rounded-2xl">Stop</button>
+                    </div>`;
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeToolModal() {
+            const m = document.getElementById('tool-modal');
+            m.classList.remove('flex'); m.classList.add('hidden');
+        }
+
+        function doCase(type) {
+            const i = document.getElementById('case-in').value;
+            let o = '';
+            if (type==='upper') o = i.toUpperCase();
+            else if (type==='lower') o = i.toLowerCase();
+            else if (type==='title') o = i.replace(/\b\w/g, c => c.toUpperCase());
+            else if (type==='sentence') o = i.charAt(0).toUpperCase() + i.slice(1).toLowerCase();
+            document.getElementById('case-out').value = o;
+        }
+
+        function genLorem() {
+            const c = parseInt(document.getElementById('lorem-c').value) || 3;
+            const w = ["lorem","ipsum","dolor","sit","amet","consectetur","adipiscing","elit"];
+            let txt = '';
+            for(let i=0; i<c; i++) txt += w.sort(()=>0.5-Math.random()).slice(0,10).join(' ') + '. ';
+            document.getElementById('lorem-out').value = txt.trim();
+        }
+
+        function formatJSON() {
+            try {
+                const obj = JSON.parse(document.getElementById('json-in').value);
+                document.getElementById('json-out').value = JSON.stringify(obj, null, 2);
+            } catch { document.getElementById('json-out').value = "Invalid JSON"; }
+        }
+
+        function encB64() { document.getElementById('b64-out').value = btoa(unescape(encodeURIComponent(document.getElementById('b64-in').value))); }
+        function decB64() { try { document.getElementById('b64-in').value = decodeURIComponent(escape(atob(document.getElementById('b64-out').value))); } catch{} }
+
+        function encURL() { document.getElementById('url-out').textContent = encodeURIComponent(document.getElementById('url-in').value); }
+        function decURL() { try { document.getElementById('url-out').textContent = decodeURIComponent(document.getElementById('url-in').value); } catch{} }
+
+        function genPass() {
+            const len = parseInt(document.getElementById('pw-len').value)||16;
+            const ch = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+            let p = ''; for(let i=0;i<len;i++) p += ch[Math.floor(Math.random()*ch.length)];
+            document.getElementById('pw-out').value = p;
+        }
+
+        function genQR() {
+            const txt = document.getElementById('qr-in').value.trim();
+            if(!txt) return;
+            const box = document.getElementById('qr-box');
+            box.innerHTML = '';
+            new QRCode(box, {text: txt, width:150, height:150, colorDark:"#fff", colorLight:"#18181b"});
+        }
+
+        function updateColor(hex) {
+            document.getElementById('hexv').textContent = hex;
+            const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+            document.getElementById('rgbv').textContent = `${r}, ${g}, ${b}`;
+        }
+
+        function convUnit() {
+            const v = parseFloat(document.getElementById('u-val').value);
+            const fr = document.getElementById('u-from').value;
+            const to = document.getElementById('u-to').value;
+            if(!v) return;
+            let m = v;
+            if(fr==='km') m=v*1000; if(fr==='cm') m=v/100; if(fr==='in') m=v*0.0254; if(fr==='ft') m=v*0.3048;
+            let res = m; if(to==='km') res=m/1000; if(to==='cm') res=m*100; if(to==='in') res=m/0.0254; if(to==='ft') res=m/0.3048;
+            document.getElementById('u-res').textContent = res.toFixed(4) + ' ' + to;
+        }
+
+        function copyVal(id) {
+            const el = document.getElementById(id);
+            navigator.clipboard.writeText(el.value).then(() => {
+                const old = el.value; el.value = "Copied!"; setTimeout(()=> el.value=old, 1200);
+            });
+        }
+
+        function genMetaTags() {
+            const title = document.getElementById('mt-title').value || 'Page Title';
+            const desc = document.getElementById('mt-desc').value || 'Description';
+            const keywords = document.getElementById('mt-keywords').value || '';
+            const output = `<meta name="title" content="${title}">
+<meta name="description" content="${desc}">
+${keywords ? `<meta name="keywords" content="${keywords}">` : ''}`;
+            document.getElementById('mt-output').value = output;
+        }
+
+        function removeDuplicates() {
+            const lines = document.getElementById('dup-in').value.split('\n');
+            const unique = [...new Set(lines)];
+            document.getElementById('dup-out').value = unique.join('\n');
+        }
+
+        function speakText() {
+            const text = document.getElementById('tts-text').value;
+            if (!text) return;
+            const utterance = new SpeechSynthesisUtterance(text);
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function stopSpeak() {
+            window.speechSynthesis.cancel();
+        }
+
+        window.onload = function() {
+            initCompressor();
+            renderTools();
+        };
+    </script>
+</body>
+</html>
